@@ -21,7 +21,7 @@ class Vehicle(Thread):
     def heartbeat(self):
         while self.heartbeating:
             ## add params to request to send vehicle updates
-            heartbeat = requests.get('supply.team22.sweispring21.tk/api/v1/heartbeat')
+            heartbeat = requests.get('supply.team22.sweispring21.tk/api/v1/heartbeat', timeout=5)
             time.sleep(5)
 
         ## handle responses - should either be something to denote that no order has been sent OR
@@ -29,6 +29,5 @@ class Vehicle(Thread):
             ## ---->>> Change status to busy, startRoute() function
 
     def startRoute(self, route):
-
 
 

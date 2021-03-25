@@ -1,12 +1,12 @@
-from threading import *
-from requests import *
+import threading
+import requests
 import time
 import json
 
 
-class Vehicle(Thread):
+class Vehicle:
     def __init__(self, id, status = 'ready', vType = 'food', location = [30.256937, -97.74562], dock = [30.256937, -97.74562]):
-        self.id
+        self.id = id
         self.status = status
         self.vType = vType
         self.location = location
@@ -54,3 +54,11 @@ class Vehicle(Thread):
         ## finalDest and reverse nextStep() until dock
         ## once at dock, update status to ready
 
+## TESTING
+def main():
+    testVehicle = Vehicle(1)
+    v1JSON = testVehicle.toJSON()
+    print(v1JSON)
+
+if __name__ == "__main__":
+    main()

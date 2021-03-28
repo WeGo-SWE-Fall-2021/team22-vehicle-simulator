@@ -3,10 +3,11 @@ import requests
 import time
 import json
 
-
+## status: ready, busy, oos
+## vType: food
 class Vehicle:
-    def __init__(self, id, status = 'ready', vType = 'food', location = [30.256937, -97.74562], dock = [30.256937, -97.74562]):
-        self.id = id
+    def __init__(self, vehicleId, status = 'ready', vType = 'food', location = [30.256937, -97.74562], dock = [30.256937, -97.74562]):
+        self.vehicleId = vehicleId
         self.status = status
         self.vType = vType
         self.location = location
@@ -37,7 +38,7 @@ class Vehicle:
 
 
             ## NO ROUTE to equal no order / do nothing yet response
-            if heartbeatResponse == 'NO ROUTE':
+            if heartbeatResponse == 'Heartbeat Received':
                 pass
             else:
                 route = heartbeatResponse
@@ -47,18 +48,29 @@ class Vehicle:
         
 
     def startRoute(self, route):
-        self.status = busy
-        ## parse through JSON Directions
-        ## pull locations into steps array
-        ## nextStep() until finalDest
+
+        ## STORE ROUTE RESPONSE TO ARRAY FOR VEHICLE USE
+        self.status = 'busy'
         ## finalDest and reverse nextStep() until dock
         ## once at dock, update status to ready
+        for i in range (0, len(route)):
+            ## ITERATE ROUTE SIMULATION TO BETTER REPRESENT ROUTE
+            time.sleep(45)
+            self.location = route[i]
+
+        ## Return to Dock
+        for i in range (len(route), 0, -1):
+            ## ITERATE ROUTE SIMULATION TO BETTER REPRESENT ROUTE
+            time.sleep(45)
+            self.location = route[i]
+        
+        self.location = self.dock
+        self.status = 'ready'
+
 
 ## TESTING
 def main():
-    testVehicle = Vehicle(1)
-    v1JSON = testVehicle.toJSON()
-    print(v1JSON)
+    pass
 
 if __name__ == "__main__":
     main()

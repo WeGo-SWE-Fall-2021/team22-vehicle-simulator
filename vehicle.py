@@ -38,7 +38,7 @@ class Vehicle:
 
 
             ## NO ROUTE to equal no order / do nothing yet response
-            if heartbeatResponse == 'Heartbeat Received':
+            if heartbeatResponse == {'Heartbeat' : 'Received'}:
                 pass
             else:
                 route = heartbeatResponse

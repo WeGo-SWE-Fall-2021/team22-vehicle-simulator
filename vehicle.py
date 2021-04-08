@@ -1,11 +1,11 @@
-import threading
+from threading import *
 import requests
 import time
 import json
 
 ## status: ready, busy, oos
 ## vType: food
-class Vehicle:
+class Vehicle(Thread):
     def __init__(self, vehicleId, status = 'ready', vType = 'food', location = [30.256937, -97.74562], dock = [30.256937, -97.74562]):
         self.vehicleId = vehicleId
         self.status = status
@@ -14,10 +14,13 @@ class Vehicle:
         self.dock = dock
         self.heartbeating = False
 
+    def run(self):
+        self.startHeartbeat()
+
     def toJSON(self):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
         
-    def startHeartBeat(self):
+    def startHeartbeat(self):
         self.heartbeating = True
         self.heartbeat()
 

@@ -1,11 +1,14 @@
 import vehicle
 import json
+import requests
+
 
 vehicleList = []
 
 def loadVehicles():
-    ## LOAD VEHICLES INTO LIST FROM DATABASE
-    pass
+    vehicleResponse = requests.get('supply.team22.sweispring21.tk/api/v1/getAllVehicles')
+    vehicleDict = json.loads(vehicleResponse)
+    return vehicleDict
 
 def showAllVehicles():
     ## PRINT VEHICLE LIST TO CONSOLE FOR TEST USER

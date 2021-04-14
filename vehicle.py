@@ -6,10 +6,9 @@ import json
 ## status: ready, busy, oos
 ## vType: food
 class Vehicle(Thread):
-    def __init__(self, vehicleId, status = 'ready', vType = 'food', location = [30.256937, -97.74562], dock = [30.256937, -97.74562]):
+    def __init__(self, vehicleId, status = 'ready', location = [30.256937, -97.74562], dock = [30.256937, -97.74562]):
         self.vehicleId = vehicleId
         self.status = status
-        self.vType = vType
         self.location = location
         self.dock = dock
         self.heartbeating = False

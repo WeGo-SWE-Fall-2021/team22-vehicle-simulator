@@ -7,7 +7,7 @@ vehicleList = []
 
 def loadVehicles():
     vehicleResponse = requests.get('supply.team22.sweispring21.tk/api/v1/getAllVehicles')
-    vehicleDict = json.loads(vehicleResponse)
+    vehicleDict = json.loads(vehicleResponse.text)
     return vehicleDict
 
 def showAllVehicles():
@@ -24,6 +24,10 @@ def startAllHeartbeats():
 
 def stopAllHeartbeats():
     # STOP ALL VEHICLE HEARTBEATS
+    pass
+
+def moveVehicle():
+    # Change Vehicle Location
     pass
 
 def main():

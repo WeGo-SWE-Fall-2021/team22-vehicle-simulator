@@ -6,7 +6,7 @@ import requests
 vehicleList = []
 
 def loadVehicles():
-    vehicleResponse = requests.get('supply.team22.sweispring21.tk/api/v1/getAllVehicles')
+    vehicleResponse = requests.get('http://supply.team22.sweispring21.tk/api/v1/supply/getAllVehicles')
     vehicleDict = json.loads(vehicleResponse.text)
     return vehicleDict
 

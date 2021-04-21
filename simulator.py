@@ -26,7 +26,7 @@ def showVehicle(index):
 
 def startAllHeartbeats():
     for v in vehicleList:
-        if v.running = False:
+        if v.running == False:
             v.run()
         else:
             v.startHeartbeat()

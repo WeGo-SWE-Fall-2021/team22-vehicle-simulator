@@ -12,9 +12,11 @@ class Vehicle(Thread):
         self.location = location
         self.dock = dock
         self.heartbeating = False
+        self.running = False
 
     def run(self):
         self.startHeartbeat()
+        self.running = True
 
     def toJSON(self):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)

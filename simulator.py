@@ -11,24 +11,33 @@ def loadVehicles():
     return vehicleDict
 
 def showAllVehicles():
-    ## PRINT VEHICLE LIST TO CONSOLE FOR TEST USER
-    pass
+    print("""_________________________________""")
+    print("""*********************************""")
+    for v in vehicleList:
+        print("""{v.vehicleId}***{v.status}***{v.location}***{v.dock}***{v.heartbeating}***""")
+        print("""*********************************""")
+    print("""_________________________________""")
 
-def showVehicle():
-    ## PRINT SINGLE VEHICLE TO CONSOLE FOR TEST USER
-    pass
+def showVehicle(index):
+    v = vehicleList[index]
+    print("""_________________________________""")
+    print("""{v.vehicleId}***{v.status}***{v.location}***{v.dock}***{v.heartbeating}***""")
+    print("""_________________________________""")
 
 def startAllHeartbeats():
-    # START ALL VEHICLE HEARTBEATS
-    pass
+    for v in vehicleList:
+        if v.running = False:
+            v.run()
+        else:
+            v.startHeartbeat()
 
 def stopAllHeartbeats():
-    # STOP ALL VEHICLE HEARTBEATS
-    pass
+    for v in vehicleList:
+        v.heartbeating = False
 
-def moveVehicle():
-    # Change Vehicle Location
+def moveVehicle(index, x, y):
     pass
+    v = vehicleList[index]
 
 def main():
     loadVehicles()

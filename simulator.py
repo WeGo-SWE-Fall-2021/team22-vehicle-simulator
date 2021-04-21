@@ -2,37 +2,40 @@ import vehicle
 import json
 import requests
 
-
-vehicleList = []
-
 def loadVehicles():
     vehicleResponse = requests.get('http://supply.team22.sweispring21.tk/api/v1/supply/getAllVehicles')
     vehicleDict = json.loads(vehicleResponse.text)
-    return vehicleDict
+    vehicleList = []
+    for i in vehicleDict:
+        av = vehicle.Vehicle(i["_id"], i["status"], i["location"], i["dock"])
+        vehicleList.append(av)
+    return vehicleList
 
-def showAllVehicles():
+def showAllVehicles(vList):
     print("""_________________________________""")
     print("""*********************************""")
-    for v in vehicleList:
-        print("""{v.vehicleId}***{v.status}***{v.location}***{v.dock}***{v.heartbeating}***""")
+    index = 0
+    for v in vList:
+        print(index , ' ----- ' , v.toString())
         print("""*********************************""")
+        index += 1
     print("""_________________________________""")
 
-def showVehicle(index):
-    v = vehicleList[index]
+def showVehicle(index, vList):
+    v = vList[index]
     print("""_________________________________""")
-    print("""{v.vehicleId}***{v.status}***{v.location}***{v.dock}***{v.heartbeating}***""")
+    print(v.toString())
     print("""_________________________________""")
 
-def startAllHeartbeats():
-    for v in vehicleList:
+def startAllHeartbeats(vList):
+    for v in vList:
         if v.running == False:
             v.run()
         else:
             v.startHeartbeat()
 
-def stopAllHeartbeats():
-    for v in vehicleList:
+def stopAllHeartbeats(vList):
+    for v in vList:
         v.heartbeating = False
 
 def moveVehicle(index, x, y):
@@ -40,50 +43,48 @@ def moveVehicle(index, x, y):
     v = vehicleList[index]
 
 def main():
-    loadVehicles()
+    vList = loadVehicles()
     simulating = True
     testOption = -1
     while simulating:
         print("""
  ::::::::::TESTING OPTIONS:::::::::
-S  ::::   START ALL HEARTBEATS
-1  ::::   SHOW VEHICLE LIST (UPDATE)
-2  ::::   SELECT VEHICLE FROM LIST
-3  ::::   STOP ALL HEARTBEATS
-X  ::::   STOP SIMULATING AND EXIT (STOPS ALL HEARTBEATS)
+1  ::::   START ALL HEARTBEATS
+2  ::::   SHOW VEHICLE LIST (UPDATE)
+3  ::::   SELECT VEHICLE FROM LIST
+4  ::::   STOP ALL HEARTBEATS
+0  ::::   STOP SIMULATING AND EXIT (STOPS ALL HEARTBEATS)
 """)
-        testOption = input('SELECT OPTION FROM ABOVE ::: ')
-        if testOption == 'S':
-            startAllHeartbeats()
-            input('PRESS ENTER TO RETURN TO MENU')
-        elif testOption == 1:
-            loadVehicles()
-            showAllVehicles()
+        testOption = int(input('SELECT OPTION FROM ABOVE ::: '))
+        if testOption == 1:
+            startAllHeartbeats(vList)
             input('PRESS ENTER TO RETURN TO MENU')
         elif testOption == 2:
+            vList = loadVehicles()
+            showAllVehicles(vList)
+            input('PRESS ENTER TO RETURN TO MENU')
+        elif testOption == 3:
             vehicleSelected = -1
-            loadVehicles()
-            showAllVehicles()
+            vList = loadVehicles()
+            showAllVehicles(vList)
             vehicleSelected = input('SELECT VEHICLE ::: ')
             try:
-                selectedVehicle = vehicleList[vehicleSelected]
-                showVehicle()
+                showVehicle(vehicleSelected, vList)
                 ## ADD SINGLE VEHICLE OPTIONS
             except:
                 print("INVALID INPUT")
             input('PRESS ENTER TO RETURN TO MENU')
-        elif testOption == '3':
-            stopAllHeartbeats()
+        elif testOption == 4:
+            stopAllHeartbeats(vList)
             input('PRESS ENTER TO RETURN TO MENU')
-        elif testOption == 'X':
-            stopAllHeartbeats()
+        elif testOption == 0:
+            stopAllHeartbeats(vList)
             simulating = False
             input('PRESS ENTER TO EXIT')
         else:
             print('INVALID OPTION INPUT')
             input('PRESS ENTER TO RETURN TO MENU')
             
-
 
 if __name__ == "__main__":
     main()

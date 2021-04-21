@@ -30,7 +30,7 @@ class Vehicle(Thread):
         while self.heartbeating:
             
             vehicleUpdateJSON = self.toJSON()
-            heartbeatResponse = requests.get('supply.team22.sweispring21.tk/api/v1/vehicleHeartbeat', vehicleUpdateJSON, timeout=5)
+            heartbeatResponse = requests.post('supply.team22.sweispring21.tk/api/v1/vehicleHeartbeat', vehicleUpdateJSON, timeout=5)
             time.sleep(5)
 
 

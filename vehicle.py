@@ -27,6 +27,7 @@ class Vehicle(Thread):
 
     def stopHeartBeat(self):
         self.heartbeating = False
+        self.status = 'oos'
 
     def heartbeat(self):
         while self.heartbeating:
@@ -34,7 +35,6 @@ class Vehicle(Thread):
             vehicleUpdateJSON = self.toJSON()
             heartbeatResponse = requests.post('supply.team22.sweispring21.tk/api/v1/vehicleHeartbeat', vehicleUpdateJSON, timeout=5)
             time.sleep(5)
-
 
 ## handle responses - should either be something to denote that no order has been sent OR
 ## an array of locations / directions of route that should trigger the following Vehicle response
@@ -50,6 +50,9 @@ class Vehicle(Thread):
                 ## consider sending a different HTTP Request as order confirmation
 
         
+    def toString(self):
+        retStr = f"""ID = {self.vehicleId} *** STATUS = {self.status} *** LOCATION = {self.location} *** DOCK = {self.dock} *** isHB = {self.heartbeating} ***"""
+        return retStr
 
     def startRoute(self, route):
 

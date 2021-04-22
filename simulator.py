@@ -7,10 +7,8 @@ def loadVehicles():
     vehicleDict = json.loads(vehicleResponse.text)
     vehicleList = []
     for i in vehicleDict:
-        try: 
-            av = vehicle.Vehicle(i["_id"], i["status"], i["location"], i["dock"])
-        except:
-            print("Unable to create vehicle from", vehicle[i])
+        av = vehicle.Vehicle(i["_id"], i["status"], i["location"], i["dock"])
+    
         vehicleList.append(av)
     return vehicleList
 

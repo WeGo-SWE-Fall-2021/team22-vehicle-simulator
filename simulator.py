@@ -58,6 +58,7 @@ def main():
 """)
         testOption = int(input('SELECT OPTION FROM ABOVE ::: '))
         if testOption == 1:
+            vList = loadVehicles()
             startAllHeartbeats(vList)
             input('PRESS ENTER TO RETURN TO MENU')
         elif testOption == 2:

@@ -6,7 +6,7 @@ import json
 ## status: ready, busy, oos
 ## vType: food
 class Vehicle(Thread):
-    def __init__(self, vehicleId, status = 'ready', location = "30.256937,-97.74562", dock = "30.256937,-97.74562"):
+    def __init__(self, vehicleId, status, location, dock):
         self.vehicleId = vehicleId
         self.status = status
         self.location = location
@@ -18,8 +18,13 @@ class Vehicle(Thread):
         self.startHeartbeat()
         self.running = True
 
-    def toJSON(self):
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+    def toDict(self):
+        vAsDict = {}
+        vAsDict["vehicleId"] = self.vehicleId
+        vAsDict["location"] = self.location
+        vAsDict["status"] = self.status
+        return vAsDict
+
         
     def startHeartbeat(self):
         self.heartbeating = True
@@ -32,9 +37,9 @@ class Vehicle(Thread):
     def heartbeat(self):
         while self.heartbeating:
             
-            vehicleUpdateJSON = self.toJSON()
-            heartbeatResponse = requests.post('supply.team22.sweispring21.tk/api/v1/vehicleHeartbeat', vehicleUpdateJSON, timeout=5)
-            time.sleep(5)
+            payload = self.toDict()
+            heartbeatResponse = requests.post('https://supply.team22.sweispring21.tk/api/v1/supply/vehicleHeartbeat',  json=payload, timeout=10)
+            time.sleep(15)
 
 ## handle responses - should either be something to denote that no order has been sent OR
 ## an array of locations / directions of route that should trigger the following Vehicle response
@@ -42,12 +47,14 @@ class Vehicle(Thread):
 
 
             ## NO ROUTE to equal no order / do nothing yet response
-            if heartbeatResponse == {'Heartbeat' : 'Received'}:
+            if heartbeatResponse == {'Heartbeat' : 'Received'} and heartbeatResponse.status_code == 200:
                 pass
-            else:
-                route = heartbeatResponse
+            elif heartbeatResponse.status_code == 200:
+                route = json.loads(heartbeatResponse.text)
                 self.startRoute(route)
                 ## consider sending a different HTTP Request as order confirmation
+            else:
+                pass
 
         
     def toString(self):

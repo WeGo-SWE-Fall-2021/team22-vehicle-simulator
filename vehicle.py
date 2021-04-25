@@ -69,7 +69,7 @@ class Vehicle:
         while self.heartbeating:
             self.status = "ready"
             payload = self.toDict()
-            heartbeatResponse = requests.post('https://supply.team22.sweispring21.tk/api/v1/supply/vehicleHeartbeat',  json=payload, timeout=10)
+            heartbeatResponse = requests.put('https://supply.team22.sweispring21.tk/api/v1/supply/vehicleHeartbeat',  json=payload, timeout=10)
 
             ## handle responses - should either be something to denote that no order has been sent OR
             ## an array of locations / directions of route that should trigger the following Vehicle response
@@ -78,9 +78,9 @@ class Vehicle:
             json_body = json.loads(heartbeatResponse.text)
 
             ## NO ROUTE to equal no order / do nothing yet response
-            if json_body == {'Heartbeat' : 'Received'} and heartbeatResponse.status_code == 201:
+            if json_body == {'Heartbeat' : 'Received'} and heartbeatResponse.status_code == 200:
                 pass
-            elif heartbeatResponse.status_code == 201:
+            elif heartbeatResponse.status_code == 200:
                 self.startRoute(json_body)
                 ## consider sending a different HTTP Request as order confirmation
             else:
@@ -89,7 +89,7 @@ class Vehicle:
 
         self.status = 'oos'
         payload = self.toDict()
-        heartbeatResponse = requests.post('https://supply.team22.sweispring21.tk/api/v1/supply/vehicleHeartbeat',  json=payload, timeout=10)
+        heartbeatResponse = requests.put('https://supply.team22.sweispring21.tk/api/v1/supply/vehicleHeartbeat',  json=payload, timeout=10)
 
     def toString(self):
         retStr = f"""ID = {self.vehicleId} *** STATUS = {self.status} *** LOCATION = {self.location} *** DOCK = {self.dock} *** isHB = {self.heartbeating} ***"""
@@ -122,7 +122,7 @@ class Vehicle:
             self.location = f"{latitude},{longitude}"
 
             payload = self.toDict()
-            heartbeatResponse = requests.post('https://supply.team22.sweispring21.tk/api/v1/supply/vehicleHeartbeat',  json=payload, timeout=10)
+            heartbeatResponse = requests.put('https://supply.team22.sweispring21.tk/api/v1/supply/vehicleHeartbeat',  json=payload, timeout=10)
             time.sleep(2)
             last_index_location += 1
 
@@ -135,7 +135,7 @@ class Vehicle:
             self.location = f"{latitude},{longitude}"
 
             payload = self.toDict()
-            heartbeatResponse = requests.post('https://supply.team22.sweispring21.tk/api/v1/supply/vehicleHeartbeat',  json=payload, timeout=10)
+            heartbeatResponse = requests.put('https://supply.team22.sweispring21.tk/api/v1/supply/vehicleHeartbeat',  json=payload, timeout=10)
             time.sleep(1)
             last_index_location -= 1
 

@@ -142,7 +142,7 @@ class Vehicle:
             if self.heartbeating:
                 payload = self.toDict()
                 heartbeatResponse = requests.put('https://supply.team22.sweispring21.tk/api/v1/supply/vehicleHeartbeat',  json=payload, timeout=10)
-            time.sleep(2)
+            time.sleep(1)
             last_index_location += 1
 
         # Hearbeat off, completed route: WAIT FOR UPDATE
@@ -155,7 +155,7 @@ class Vehicle:
         ## Return to Dock
         last_index_location = len(coordinates) - 1
         while self.routeRunning and last_index_location >= 0:
-            coordinate = coordinates[i]
+            coordinate = coordinates[last_index_location]
             latitude = coordinate[0]
             longitude = coordinate[1]
             self.location = f"{latitude},{longitude}"

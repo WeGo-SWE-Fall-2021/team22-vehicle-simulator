@@ -115,8 +115,8 @@ class Vehicle:
 
         ## finalDest and reverse nextStep() until dock
         ## once at dock, update status to ready
-        for i in range(last_index_location, len(coordinates)):
-            coordinate = coordinates[i]
+        while self.heartbeating and last_index_location < len(coordinates):
+            coordinate = coordinates[last_index_location]
             latitude = coordinate[0]
             longitude = coordinate[1]
             self.location = f"{latitude},{longitude}"
@@ -124,9 +124,11 @@ class Vehicle:
             payload = self.toDict()
             heartbeatResponse = requests.post('https://supply.team22.sweispring21.tk/api/v1/supply/vehicleHeartbeat',  json=payload, timeout=10)
             time.sleep(2)
+            last_index_location += 1
 
         ## Return to Dock
-        for i in range(len(coordinates) - 1, 0, -1):
+        last_index_location = len(coordinates) - 1
+        while self.heartbeating and last_index_location >= 0:
             coordinate = coordinates[i]
             latitude = coordinate[0]
             longitude = coordinate[1]
@@ -135,9 +137,11 @@ class Vehicle:
             payload = self.toDict()
             heartbeatResponse = requests.post('https://supply.team22.sweispring21.tk/api/v1/supply/vehicleHeartbeat',  json=payload, timeout=10)
             time.sleep(1)
+            last_index_location -= 1
 
-        self.location = self.dock
-        self.status = 'ready'
+        if self.heartbeating:
+            self.location = self.dock
+            self.status = 'ready'
 
     def __eq__(self, value):
         return isinstance(value, Vehicle) and self.vehicleId == value.vehicleId

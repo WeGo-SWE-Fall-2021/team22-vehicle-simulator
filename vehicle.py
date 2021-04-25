@@ -100,6 +100,7 @@ class Vehicle:
                 ## consider sending a different HTTP Request as order confirmation
             else:
                 pass
+            
             time.sleep(15)
 
         self.status = 'oos'

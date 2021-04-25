@@ -78,9 +78,9 @@ class Vehicle:
             json_body = json.loads(heartbeatResponse.text)
 
             ## NO ROUTE to equal no order / do nothing yet response
-            if json_body == {'Heartbeat' : 'Received'} and heartbeatResponse.status_code == 200:
+            if json_body == {'Heartbeat' : 'Received'} and heartbeatResponse.status_code == 201:
                 pass
-            elif heartbeatResponse.status_code == 200:
+            elif heartbeatResponse.status_code == 201:
                 self.startRoute(json_body)
                 ## consider sending a different HTTP Request as order confirmation
             else:

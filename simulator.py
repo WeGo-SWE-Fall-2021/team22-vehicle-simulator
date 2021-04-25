@@ -1,6 +1,7 @@
 import json
 import requests
 import time
+import re
 
 from vehicle import Vehicle
 
@@ -40,12 +41,12 @@ def stopAllHeartbeats(vList):
     for v in vList:
         v.stopHeartBeat()
 
-    while len(list(filter(lambda x: x._heartbeatThread.is_alive() == True, vList))) != 0:
+    while len(list(filter(lambda x: x._heartbeatThread is not None and x._heartbeatThread.is_alive() == True, vList))) != 0:
         time.sleep(2)
         print("---STOPPING HEARTBEATS---")
 
 
-def moveVehicle(index, x, y):
+def moveVehicle(index, latitude, longitude):
     pass
     v = refreshVehicleList[index]
 
@@ -97,13 +98,50 @@ def main():
             vehicleSelected = -1
             refreshVehicleList(mainVehicleList)
             showAllVehicles(mainVehicleList)
-            vehicleSelected = input('SELECT VEHICLE ::: ')
             try:
+                vehicleSelected = int(input('SELECT VEHICLE ::: '))
                 showVehicle(vehicleSelected, mainVehicleList)
+                v = mainVehicleList[vehicleSelected]
+                while testOption != 0 and v in mainVehicleList:
+
+                    print("""
+::::::::::SINGLE VEHICLE:::::::::
+1  ::::   START HEARTBEAT
+2  ::::   SHOW VEHICLE (UPDATE)
+3  ::::   MOVE VEHICLE
+4  ::::   STOP HEARTBEAT
+0  ::::   RETURN TO MAIN MENU
+                    """)
+
+                    testOption = int(input('SELECT OPTION FROM ABOVE ::: '))
+                    try:
+                        if testOption == 1:
+                            if v.heartbeating == False:
+                                v.startHeartbeat()
+                        elif testOption == 2:
+                            print("""_________________________________""")
+                            print(v.toString())
+                            print("""_________________________________""")
+                        elif testOption == 3:
+                            moveLocation = input('TYPE NEW LOCATION (LATITUDE, LONGITUDE) ::: ')
+                            if re.match('^(?P<lat>-?\d*(.\d+)),(?P<long>-?\d*(.\d+))$', moveLocation):
+                                v.location = moveLocation
+                                print("::::::WILL UPDATE ON NEXT HEARTBEAT::::::")
+                            else:
+                                print("INVALID INPUT")
+                        elif testOption == 4:
+                            if v.heartbeating == True:
+                                v.stopHeartBeat()
+                            while v._heartbeatThread.is_alive():
+                                print("::::::::STOPPING HEARTBEAT::::::::")
+                                time.sleep(2)
+                        refreshVehicleList(mainVehicleList)
+                    except:
+                        pass
+
                 ## ADD SINGLE VEHICLE OPTIONS
             except:
                 print("INVALID INPUT")
-            input('PRESS ENTER TO RETURN TO MENU')
         elif testOption == 4:
             stopAllHeartbeats(mainVehicleList)
             input('PRESS ENTER TO RETURN TO MENU')

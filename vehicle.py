@@ -79,7 +79,17 @@ class Vehicle:
 
             ## NO ROUTE to equal no order / do nothing yet response
             if json_body == {'Heartbeat' : 'Received'} and heartbeatResponse.status_code == 200:
-                pass
+                if self.location != self.dock:
+
+                    # Gen Route from location to dock
+                    # New API post call to recive route from dispatch / mapbox
+
+                    self.status = 'busy'
+                    payload = self.toDict()
+                    heartbeatResponse = requests.put('https://supply.team22.sweispring21.tk/api/v1/supply/vehicleHeartbeat',  json=payload, timeout=10)
+                    time.sleep(20)
+                    self.location = self.dock
+
             elif heartbeatResponse.status_code == 200:
                 self.startRoute(json_body)
                 ## consider sending a different HTTP Request as order confirmation

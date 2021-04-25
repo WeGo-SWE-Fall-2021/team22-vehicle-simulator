@@ -13,6 +13,7 @@ class Vehicle:
         self._dock = dock
         self._heartbeating = False
         self._heartbeatThread = None
+        self.routeRunning = False
 
     @property
     def vehicleId(self):
@@ -59,8 +60,12 @@ class Vehicle:
         
     def startHeartbeat(self):
         self.heartbeating = True
-        self._heartbeatThread = Thread(target=self.heartbeat, name=f"Vehicle_{self.vehicleId}")
-        self._heartbeatThread.start()
+        if self._heartbeatThread == None or not self._heartbeatThread.is_alive():
+            self._heartbeatThread = Thread(target=self.heartbeat, name=f"Vehicle_{self.vehicleId}")
+            self._heartbeatThread.start()
+        
+    def endRoute(self):
+        self.routeRunning = False
 
     def stopHeartBeat(self):
         self.heartbeating = False
@@ -100,6 +105,7 @@ class Vehicle:
         self.status = 'oos'
         payload = self.toDict()
         heartbeatResponse = requests.put('https://supply.team22.sweispring21.tk/api/v1/supply/vehicleHeartbeat',  json=payload, timeout=10)
+        
 
     def toString(self):
         retStr = f"""ID = {self.vehicleId} *** STATUS = {self.status} *** LOCATION = {self.location} *** DOCK = {self.dock} *** isHB = {self.heartbeating} ***"""
@@ -107,6 +113,7 @@ class Vehicle:
 
     def startRoute(self, route):
         self.status = 'busy'
+        self.routeRunning = True
 
         coordinates = route["coordinates"]
         ## STORE ROUTE RESPONSE TO ARRAY FOR VEHICLE USE
@@ -125,33 +132,44 @@ class Vehicle:
 
         ## finalDest and reverse nextStep() until dock
         ## once at dock, update status to ready
-        while self.heartbeating and last_index_location < len(coordinates):
+        while self.routeRunning and last_index_location < len(coordinates):
             coordinate = coordinates[last_index_location]
             latitude = coordinate[0]
             longitude = coordinate[1]
             self.location = f"{latitude},{longitude}"
 
-            payload = self.toDict()
-            heartbeatResponse = requests.put('https://supply.team22.sweispring21.tk/api/v1/supply/vehicleHeartbeat',  json=payload, timeout=10)
+            if self.heartbeating:
+                payload = self.toDict()
+                heartbeatResponse = requests.put('https://supply.team22.sweispring21.tk/api/v1/supply/vehicleHeartbeat',  json=payload, timeout=10)
             time.sleep(2)
             last_index_location += 1
 
+        # Hearbeat off, completed route: WAIT FOR UPDATE
+        if not self._heartbeating and self.routeRunning:
+            while not self.heartbeating and self.routeRunning:
+                time.sleep(5)
+            payload = self.toDict()
+            heartbeatResponse = requests.put('https://supply.team22.sweispring21.tk/api/v1/supply/vehicleHeartbeat',  json=payload, timeout=10)
+
         ## Return to Dock
         last_index_location = len(coordinates) - 1
-        while self.heartbeating and last_index_location >= 0:
+        while self.routeRunning and last_index_location >= 0:
             coordinate = coordinates[i]
             latitude = coordinate[0]
             longitude = coordinate[1]
             self.location = f"{latitude},{longitude}"
 
-            payload = self.toDict()
-            heartbeatResponse = requests.put('https://supply.team22.sweispring21.tk/api/v1/supply/vehicleHeartbeat',  json=payload, timeout=10)
+            if self.heartbeating:
+                payload = self.toDict()
+                heartbeatResponse = requests.put('https://supply.team22.sweispring21.tk/api/v1/supply/vehicleHeartbeat',  json=payload, timeout=10)
             time.sleep(1)
             last_index_location -= 1
 
         if self.heartbeating:
             self.location = self.dock
             self.status = 'ready'
+        
+        self.routeRunning = False
 
     def __eq__(self, value):
         return isinstance(value, Vehicle) and self.vehicleId == value.vehicleId

@@ -41,9 +41,13 @@ def stopAllHeartbeats(vList):
     for v in vList:
         v.stopHeartBeat()
 
+def endAllRoutes(vList):
+    for v in vList:
+        v.endRoute()
+
     while len(list(filter(lambda x: x._heartbeatThread is not None and x._heartbeatThread.is_alive() == True, vList))) != 0:
         time.sleep(2)
-        print("---STOPPING HEARTBEATS---")
+        print("---PAUSING ROUTE---")
 
 
 def moveVehicle(index, latitude, longitude):
@@ -109,7 +113,7 @@ def main():
 1  ::::   START HEARTBEAT
 2  ::::   SHOW VEHICLE (UPDATE)
 3  ::::   MOVE VEHICLE
-4  ::::   STOP HEARTBEAT
+4  ::::   STOP HEARTBEAT (OOS)
 0  ::::   RETURN TO MAIN MENU
                     """)
 
@@ -147,6 +151,7 @@ def main():
             input('PRESS ENTER TO RETURN TO MENU')
         elif testOption == 0:
             stopAllHeartbeats(mainVehicleList)
+            endAllRoutes(mainVehicleList)
             simulating = False
             input('PRESS ENTER TO EXIT')
         else:

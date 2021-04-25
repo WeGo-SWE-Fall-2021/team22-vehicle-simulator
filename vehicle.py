@@ -5,18 +5,49 @@ import json
 
 ## status: ready, busy, oos
 ## vType: food
-class Vehicle(Thread):
+class Vehicle:
     def __init__(self, vehicleId, status, location, dock):
-        self.vehicleId = vehicleId
-        self.status = status
-        self.location = location
-        self.dock = dock
-        self.heartbeating = False
-        self.running = False
+        self._vehicleId = vehicleId
+        self._status = status
+        self._location = location
+        self._dock = dock
+        self._heartbeating = False
 
-    def run(self):
-        self.startHeartbeat()
-        self.running = True
+    @property
+    def vehicleId(self):
+        return self._vehicleId
+
+    @property
+    def status(self):
+        return self._status
+
+    @status.setter
+    def status(self, value):
+        self._status = value
+
+    @property
+    def location(self):
+        return self._location
+
+    @location.setter
+    def location(self, value):
+        self._location = value
+
+    @property
+    def dock(self):
+        return self._dock
+
+    @dock.setter
+    def dock(self, value):
+        self._dock = value
+
+    @property
+    def heartbeating(self):
+        return self._heartbeating
+
+    @heartbeating.setter
+    def heartbeating(self, value):
+        self._heartbeating = value
 
     def toDict(self):
         vAsDict = {}
@@ -24,39 +55,41 @@ class Vehicle(Thread):
         vAsDict["location"] = self.location
         vAsDict["status"] = self.status
         return vAsDict
-
         
     def startHeartbeat(self):
         self.heartbeating = True
-        self.heartbeat()
+        self._heartbeatThread = Thread(target=self.heartbeat, name=f"Vehicle_{self.vehicleId}")
+        self._heartbeatThread.start()
 
     def stopHeartBeat(self):
         self.heartbeating = False
-        self.status = 'oos'
 
     def heartbeat(self):
         while self.heartbeating:
-            
+            self.status = "ready"
             payload = self.toDict()
             heartbeatResponse = requests.post('https://supply.team22.sweispring21.tk/api/v1/supply/vehicleHeartbeat',  json=payload, timeout=10)
             time.sleep(15)
 
-## handle responses - should either be something to denote that no order has been sent OR
-## an array of locations / directions of route that should trigger the following Vehicle response
+            ## handle responses - should either be something to denote that no order has been sent OR
+            ## an array of locations / directions of route that should trigger the following Vehicle response
             ## ---->>> Change status to busy, startRoute() function
 
+            json_body = json.loads(heartbeatResponse.text)
 
             ## NO ROUTE to equal no order / do nothing yet response
-            if heartbeatResponse == {'Heartbeat' : 'Received'} and heartbeatResponse.status_code == 200:
+            if json_body == {'Heartbeat' : 'Received'} and heartbeatResponse.status_code == 200:
                 pass
             elif heartbeatResponse.status_code == 200:
-                route = json.loads(heartbeatResponse.text)
-                self.startRoute(route)
+                self.startRoute(json_body)
                 ## consider sending a different HTTP Request as order confirmation
             else:
                 pass
 
-        
+        self.status = 'oos'
+        payload = self.toDict()
+        heartbeatResponse = requests.post('https://supply.team22.sweispring21.tk/api/v1/supply/vehicleHeartbeat',  json=payload, timeout=10)
+
     def toString(self):
         retStr = f"""ID = {self.vehicleId} *** STATUS = {self.status} *** LOCATION = {self.location} *** DOCK = {self.dock} *** isHB = {self.heartbeating} ***"""
         return retStr
@@ -77,11 +110,15 @@ class Vehicle(Thread):
             ## ITERATE ROUTE SIMULATION TO BETTER REPRESENT ROUTE
             time.sleep(45)
             self.location = route[i]
-        
+
         self.location = self.dock
         self.status = 'ready'
 
+    def __eq__(self, value):
+        return isinstance(value, Vehicle) and self.vehicleId == value.vehicleId
 
+    def __hash__(self):
+        return hash(self.vehicleId)
 ## TESTING
 def main():
     pass

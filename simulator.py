@@ -1,14 +1,15 @@
-import vehicle
 import json
 import requests
+import time
 
-def loadVehicles():
+from vehicle import Vehicle
+
+def loadVehiclesFromDB():
     vehicleResponse = requests.get('http://supply.team22.sweispring21.tk/api/v1/supply/getAllVehicles')
     vehicleDict = json.loads(vehicleResponse.text)
     vehicleList = []
     for i in vehicleDict:
-        av = vehicle.Vehicle(i["_id"], i["status"], i["location"], i["dock"])
-    
+        av = Vehicle(i["_id"], i["status"], i["location"], i["dock"])
         vehicleList.append(av)
     return vehicleList
 
@@ -30,21 +31,48 @@ def showVehicle(index, vList):
 
 def startAllHeartbeats(vList):
     for v in vList:
-        if v.running == False:
-            v.run()
-        else:
+        if v.heartbeating == False:
             v.startHeartbeat()
 
 def stopAllHeartbeats(vList):
+    print("---STOPPING HEARTBEATS---")
+
     for v in vList:
-        v.heartbeating = False
+        v.stopHeartBeat()
+
+    while len(list(filter(lambda x: x._heartbeatThread.is_alive() == True, vList))) != 0:
+        time.sleep(2)
+        print("---STOPPING HEARTBEATS---")
+
 
 def moveVehicle(index, x, y):
     pass
-    v = vehicleList[index]
+    v = refreshVehicleList[index]
+
+def refreshVehicleList(main_list):
+    new_list = loadVehiclesFromDB()
+
+    # Remove old vehicles
+    for oldVehicle in main_list:
+        matched = False
+        for vehicle in new_list:
+            if vehicle == oldVehicle:
+                matched = True
+        if not matched:
+            main_list.remove(oldVehicle)
+
+    # Add new values
+    for newVehicle in new_list:
+        matched = False
+        for vehicle in main_list:
+            if vehicle == newVehicle:
+                matched = True
+        if not matched:
+            main_list.append(newVehicle)
 
 def main():
-    vList = loadVehicles()
+    mainVehicleList = []
+    refreshVehicleList(mainVehicleList)
     simulating = True
     testOption = -1
     while simulating:
@@ -58,29 +86,29 @@ def main():
 """)
         testOption = int(input('SELECT OPTION FROM ABOVE ::: '))
         if testOption == 1:
-            vList = loadVehicles()
-            startAllHeartbeats(vList)
+            refreshVehicleList(mainVehicleList)
+            startAllHeartbeats(mainVehicleList)
             input('PRESS ENTER TO RETURN TO MENU')
         elif testOption == 2:
-            vList = loadVehicles()
-            showAllVehicles(vList)
+            refreshVehicleList(mainVehicleList)
+            showAllVehicles(mainVehicleList)
             input('PRESS ENTER TO RETURN TO MENU')
         elif testOption == 3:
             vehicleSelected = -1
-            vList = loadVehicles()
-            showAllVehicles(vList)
+            refreshVehicleList(mainVehicleList)
+            showAllVehicles(mainVehicleList)
             vehicleSelected = input('SELECT VEHICLE ::: ')
             try:
-                showVehicle(vehicleSelected, vList)
+                showVehicle(vehicleSelected, mainVehicleList)
                 ## ADD SINGLE VEHICLE OPTIONS
             except:
                 print("INVALID INPUT")
             input('PRESS ENTER TO RETURN TO MENU')
         elif testOption == 4:
-            stopAllHeartbeats(vList)
+            stopAllHeartbeats(mainVehicleList)
             input('PRESS ENTER TO RETURN TO MENU')
         elif testOption == 0:
-            stopAllHeartbeats(vList)
+            stopAllHeartbeats(mainVehicleList)
             simulating = False
             input('PRESS ENTER TO EXIT')
         else:

@@ -116,8 +116,13 @@ class Vehicle:
         self.status = 'busy'
         self.routeRunning = True
 
+        duration = route["duration"]
+
         coordinates = route["coordinates"]
         ## STORE ROUTE RESPONSE TO ARRAY FOR VEHICLE USE
+
+        ## Create step interval / time (Realistic ETA)
+        timePerStep = duration / float(len(coordinates))
 
         last_index_location = 0
         last_location_latitude = float(self.location.split(",")[0])
@@ -142,7 +147,7 @@ class Vehicle:
             if self.heartbeating:
                 payload = self.toDict()
                 heartbeatResponse = requests.put('https://supply.team22.sweispring21.tk/api/v1/supply/vehicleHeartbeat',  json=payload, timeout=10)
-            time.sleep(1)
+            time.sleep(timePerStep)
             last_index_location += 1
 
         # Hearbeat off, completed route: WAIT FOR UPDATE
@@ -163,7 +168,7 @@ class Vehicle:
             if self.heartbeating:
                 payload = self.toDict()
                 heartbeatResponse = requests.put('https://supply.team22.sweispring21.tk/api/v1/supply/vehicleHeartbeat',  json=payload, timeout=10)
-            time.sleep(1)
+            time.sleep(timePerStep)
             last_index_location -= 1
 
         if self.heartbeating:

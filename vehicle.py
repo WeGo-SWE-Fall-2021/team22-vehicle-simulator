@@ -80,26 +80,27 @@ class Vehicle:
             ## an array of locations / directions of route that should trigger the following Vehicle response
             ## ---->>> Change status to busy, startRoute() function
 
-            json_body = json.loads(heartbeatResponse.text)
+            if heartbeatResponse.status == 200:
+                json_body = json.loads(heartbeatResponse.text)
 
-            ## NO ROUTE to equal no order / do nothing yet response
-            if json_body == {'Heartbeat' : 'Received'} and heartbeatResponse.status_code == 200:
-                if self.location != self.dock:
+                ## NO ROUTE to equal no order / do nothing yet response
+                if json_body == {'Heartbeat' : 'Received'}:
+                    if self.location != self.dock:
 
-                    # Gen Route from location to dock
-                    # New API post call to recive route from dispatch / mapbox
+                        # Gen Route from location to dock
+                        # New API post call to recive route from dispatch / mapbox
 
-                    self.status = 'busy'
-                    payload = self.toDict()
-                    heartbeatResponse = requests.put('https://supply.team22.sweispring21.tk/api/v1/supply/vehicleHeartbeat',  json=payload, timeout=10)
-                    time.sleep(20)
-                    self.location = self.dock
+                        self.status = 'busy'
+                        payload = self.toDict()
+                        heartbeatResponse = requests.put('https://supply.team22.sweispring21.tk/api/v1/supply/vehicleHeartbeat',  json=payload, timeout=10)
+                        time.sleep(20)
+                        self.location = self.dock
 
-            elif heartbeatResponse.status_code == 200:
-                self.startRoute(json_body)
-                ## consider sending a different HTTP Request as order confirmation
+                else:
+                    self.startRoute(json_body)
+                    ## consider sending a different HTTP Request as order confirmation
             else:
-                pass
+                print(f"Heartbeat failed:  {heartbeatResponse.status} for vehicle: {self.vehicle_id}" )
             
             time.sleep(15)
 

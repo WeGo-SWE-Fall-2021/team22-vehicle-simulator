@@ -80,7 +80,7 @@ class Vehicle:
             ## an array of locations / directions of route that should trigger the following Vehicle response
             ## ---->>> Change status to busy, startRoute() function
 
-            if heartbeatResponse.status == 200:
+            if heartbeatResponse.status_code == 200:
                 json_body = json.loads(heartbeatResponse.text)
 
                 ## NO ROUTE to equal no order / do nothing yet response

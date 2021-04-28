@@ -105,8 +105,8 @@ class Vehicle:
                     self.startRoute(json_body)
                     ## consider sending a different HTTP Request as order confirmation
             else:
-                print(f"Heartbeat failed:  {heartbeatResponse.status} for vehicle: {self.vehicle_id}" )
-            
+                print(f"Heartbeat failed:  {heartbeatResponse.status_code} for vehicle: {self.vehicleId}" )
+
             time.sleep(15)
 
         self.status = 'oos'

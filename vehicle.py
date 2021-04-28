@@ -74,8 +74,10 @@ class Vehicle:
         while self.heartbeating:
             self.status = "ready"
             payload = self.toDict()
-            heartbeatResponse = requests.put('https://supply.team22.sweispring21.tk/api/v1/supply/vehicleHeartbeat',  json=payload, timeout=10)
-
+            try:
+                heartbeatResponse = requests.put('https://supply.team22.sweispring21.tk/api/v1/supply/vehicleHeartbeat',  json=payload, timeout=10)
+            except:
+                continue
             ## handle responses - should either be something to denote that no order has been sent OR
             ## an array of locations / directions of route that should trigger the following Vehicle response
             ## ---->>> Change status to busy, startRoute() function
@@ -92,7 +94,10 @@ class Vehicle:
 
                         self.status = 'busy'
                         payload = self.toDict()
-                        heartbeatResponse = requests.put('https://supply.team22.sweispring21.tk/api/v1/supply/vehicleHeartbeat',  json=payload, timeout=10)
+                        try:
+                            heartbeatResponse = requests.put('https://supply.team22.sweispring21.tk/api/v1/supply/vehicleHeartbeat',  json=payload, timeout=10)
+                        except:
+                            continue
                         time.sleep(20)
                         self.location = self.dock
 
@@ -106,7 +111,10 @@ class Vehicle:
 
         self.status = 'oos'
         payload = self.toDict()
-        heartbeatResponse = requests.put('https://supply.team22.sweispring21.tk/api/v1/supply/vehicleHeartbeat',  json=payload, timeout=10)
+        try:
+            heartbeatResponse = requests.put('https://supply.team22.sweispring21.tk/api/v1/supply/vehicleHeartbeat',  json=payload, timeout=10)
+        except:
+            pass
         
 
     def toString(self):
@@ -147,7 +155,10 @@ class Vehicle:
 
             if self.heartbeating:
                 payload = self.toDict()
-                heartbeatResponse = requests.put('https://supply.team22.sweispring21.tk/api/v1/supply/vehicleHeartbeat',  json=payload, timeout=10)
+                try:
+                    heartbeatResponse = requests.put('https://supply.team22.sweispring21.tk/api/v1/supply/vehicleHeartbeat',  json=payload, timeout=10)
+                except:
+                    continue
             time.sleep(timePerStep)
             last_index_location += 1
 
@@ -156,7 +167,16 @@ class Vehicle:
             while not self.heartbeating and self.routeRunning:
                 time.sleep(5)
             payload = self.toDict()
-            heartbeatResponse = requests.put('https://supply.team22.sweispring21.tk/api/v1/supply/vehicleHeartbeat',  json=payload, timeout=10)
+
+            # If request fails to notify, try again
+            passed = False
+            while not passed:
+                try:
+                    heartbeatResponse = requests.put('https://supply.team22.sweispring21.tk/api/v1/supply/vehicleHeartbeat',  json=payload, timeout=10)
+                    if (heartbeatResponse.status_code == 200):
+                        passed = True
+                except:
+                    pass
 
         ## Return to Dock
         last_index_location = len(coordinates) - 1
@@ -168,14 +188,17 @@ class Vehicle:
 
             if self.heartbeating:
                 payload = self.toDict()
-                heartbeatResponse = requests.put('https://supply.team22.sweispring21.tk/api/v1/supply/vehicleHeartbeat',  json=payload, timeout=10)
+                try:
+                    heartbeatResponse = requests.put('https://supply.team22.sweispring21.tk/api/v1/supply/vehicleHeartbeat',  json=payload, timeout=10)
+                except:
+                    pass
             time.sleep(timePerStep)
             last_index_location -= 1
 
         if self.heartbeating:
             self.location = self.dock
             self.status = 'ready'
-        
+
         self.routeRunning = False
 
     def __eq__(self, value):
